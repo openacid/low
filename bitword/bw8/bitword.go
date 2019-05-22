@@ -16,6 +16,8 @@ var (
 //
 // Significant bits in a byte is place at left.
 // Thus the result byte slice keeps order with the original string.
+//
+// Since 0.1.2
 func FromStr(s string, n int) []byte {
 	if wordMask[n] == 0 {
 		panic("n must be one of 1, 2, 4, 8")
@@ -39,6 +41,8 @@ func FromStr(s string, n int) []byte {
 }
 
 // FromStrs converts a `[]string` to a n-bit word `[][]byte`.
+//
+// Since 0.1.2
 func FromStrs(strs []string, n int) [][]byte {
 	rst := make([][]byte, len(strs))
 	for i, s := range strs {
@@ -49,6 +53,8 @@ func FromStrs(strs []string, n int) [][]byte {
 
 // ToStr is the reverse of FromStr.
 // It composes a string of which each byte is formed from 8/n words from bs.
+//
+// Since 0.1.2
 func ToStr(bs []byte, n int) string {
 	if wordMask[n] == 0 {
 		panic("n must be one of 1, 2, 4, 8")
@@ -76,6 +82,8 @@ func ToStr(bs []byte, n int) string {
 }
 
 // ToStrs converts a `[][]byte` back to a `[]string`.
+//
+// Since 0.1.2
 func ToStrs(bytesslice [][]byte, n int) []string {
 	rst := make([]string, len(bytesslice))
 	for i, s := range bytesslice {

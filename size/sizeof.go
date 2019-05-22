@@ -8,6 +8,8 @@ import (
 	"unsafe"
 )
 
+// const uintSize = 32 << (^uint(0) >> 32 & 1) // 32 or 64
+
 // Of returns the size in byte a value(not type) costs.
 //
 // Since 0.1.0
