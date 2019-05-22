@@ -104,3 +104,31 @@ func Get(s string, n int, ith int) byte {
 	word := s[i>>3]
 	return (word >> uint(7-end)) & wordMask[n]
 }
+
+// FirstDiff returns the index of the first different n-bit word,
+// that ge "from" and lt "end".
+// If "end" is -1 it means to look up upto end of a or b.
+//
+// Since 0.1.2
+func FirstDiff(a, b string, n int, from, end int) int {
+	la, lb := len(a)*8, len(b)*8
+
+	if end == -1 {
+		end = la
+	}
+
+	if end > la {
+		end = la
+	}
+
+	if end > lb {
+		end = lb
+	}
+
+	for i := from; i < end; i++ {
+		if Get(a, n, i) != Get(b, n, i) {
+			return i
+		}
+	}
+	return end
+}

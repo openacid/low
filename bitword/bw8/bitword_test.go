@@ -219,3 +219,43 @@ func TestGet_panic(t *testing.T) {
 		ta.Panics(func() { Get(c.s, c.n, c.ith) }, "%d-th: %v", i+1, c)
 	}
 }
+
+func TestFirstDiff(t *testing.T) {
+
+	ta := require.New(t)
+
+	cases := []struct {
+		a, b      string
+		n         int
+		from, end int
+		want      int
+	}{
+		{"", "", 1, 0, 0, 0},
+
+		// 0x61 0x62
+		{"a", "b", 1, 0, 0, 0},
+		{"a", "b", 1, 0, 1, 1},
+		{"a", "b", 1, 0, 2, 2},
+		{"a", "b", 1, 0, 6, 6},
+		{"a", "b", 1, 0, 7, 6},
+
+		{"aa", "ab", 1, 5, 7, 7},
+		{"aa", "ab", 1, 5, 14, 14},
+		{"aa", "ab", 1, 5, 15, 14},
+
+		{"aa", "ab", 1, 15, 15, 15},
+		{"aa", "ab", 2, 2, 7, 7},
+		{"aa", "ab", 4, 0, 4, 3},
+		{"aa", "ab", 8, 0, 1000, 1},
+
+		{"aa", "aa", 4, 0, 4, 4},
+
+		{"aac", "aa", 4, 0, 4, 4},
+		{"aac", "ab", 4, 0, 4, 3},
+	}
+
+	for i, c := range cases {
+		got := FirstDiff(c.a, c.b, c.n, c.from, c.end)
+		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
+	}
+}
