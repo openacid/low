@@ -110,31 +110,19 @@ func sizeof(v reflect.Value) int {
 		for i := 0; i < len(keys); i++ {
 			mapkey := keys[i]
 			s := sizeof(mapkey)
-			if s < 0 {
-				return -1
-			}
 			sum += s
 			s = sizeof(v.MapIndex(mapkey))
-			if s < 0 {
-				return -1
-			}
 			sum += s
 		}
 	case reflect.Slice, reflect.Array:
 		for i, n := 0, v.Len(); i < n; i++ {
 			s := sizeof(v.Index(i))
-			if s < 0 {
-				return -1
-			}
 			sum += s
 		}
 
 	case reflect.String:
 		for i, n := 0, v.Len(); i < n; i++ {
 			s := sizeof(v.Index(i))
-			if s < 0 {
-				return -1
-			}
 			sum += s
 		}
 
@@ -150,9 +138,6 @@ func sizeof(v reflect.Value) int {
 	case reflect.Struct:
 		for i, n := 0, v.NumField(); i < n; i++ {
 			s := sizeof(v.Field(i))
-			if s < 0 {
-				return -1
-			}
 			sum += s
 		}
 
