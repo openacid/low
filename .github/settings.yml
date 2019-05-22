@@ -1,0 +1,6 @@
+_extends: gh-config
+
+repository:
+  name: low
+  description: low level data type and utils in Golang.
+  topics: go, golang, datastructure, lowlevel, util
