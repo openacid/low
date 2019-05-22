@@ -1,5 +1,5 @@
-// Package bitword provides string operations functions
-package bitword
+// Package bw8 provides string operations functions
+package bw8
 
 var (
 	// mask for 1, 2, 4, 8 bit word
