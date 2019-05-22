@@ -9,3 +9,15 @@ low level data type and utils in Golang.
 [![GolangCI](https://golangci.com/badges/github.com/openacid/low.svg)](https://golangci.com/r/github.com/openacid/low)
 [![Sourcegraph](https://sourcegraph.com/github.com/openacid/low/-/badge.svg)](https://sourcegraph.com/github.com/openacid/low?badge)
 [![Coverage Status](https://coveralls.io/repos/github/openacid/low/badge.svg?branch=master)](https://coveralls.io/github/openacid/low?branch=master)
+
+
+# Install
+
+```sh
+go get github.com/openacid/low/...
+```
+
+# Modules
+
+-   `size` provides value size operations.
+    [![GoDoc](https://godoc.org/github.com/openacid/low/size?status.svg)](http://godoc.org/github.com/openacid/low/size)
