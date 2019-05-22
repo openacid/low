@@ -142,3 +142,80 @@ func TestToAndFromStrs(t *testing.T) {
 		}
 	}
 }
+
+func TestGet(t *testing.T) {
+
+	ta := require.New(t)
+
+	type getInput struct {
+		s   string
+		n   int
+		ith int
+	}
+
+	cases := []struct {
+		input getInput
+		want  byte
+	}{
+		{getInput{"a", 1, 0}, 0},
+		{getInput{"a", 1, 1}, 1},
+		{getInput{"a", 1, 2}, 1},
+		{getInput{"a", 1, 3}, 0},
+		{getInput{"a", 1, 4}, 0},
+		{getInput{"a", 1, 5}, 0},
+		{getInput{"a", 1, 6}, 0},
+		{getInput{"a", 1, 7}, 1},
+
+		{getInput{"a", 2, 0}, 1},
+		{getInput{"a", 2, 1}, 2},
+		{getInput{"a", 2, 2}, 0},
+		{getInput{"a", 2, 3}, 1},
+
+		{getInput{"a", 4, 0}, 6},
+		{getInput{"a", 4, 1}, 1},
+
+		{getInput{"a", 8, 0}, 0x61},
+
+		{getInput{"abc", 4, 0}, 6},
+		{getInput{"abc", 4, 1}, 1},
+		{getInput{"abc", 4, 2}, 6},
+		{getInput{"abc", 4, 3}, 2},
+		{getInput{"abc", 4, 4}, 6},
+		{getInput{"abc", 4, 5}, 3},
+	}
+
+	for i, c := range cases {
+		got := Get(c.input.s, c.input.n, c.input.ith)
+		ta.Equal(c.want, got,
+			"%d-th: input: %#v; want: %#v; got: %#v",
+			i+1, c.input, c.want, got)
+	}
+}
+
+func TestGet_panic(t *testing.T) {
+
+	ta := require.New(t)
+
+	cases := []struct {
+		s   string
+		n   int
+		ith int
+	}{
+		{"", 1, 0},
+		{"", 2, 0},
+		{"", 3, 0},
+		{"", 3, 1},
+		{"a", 1, 8},
+		{"a", 1, 9},
+		{"ab", 1, 16},
+
+		{"a", 2, 4},
+		{"a", 4, 2},
+		{"a", 8, 1},
+		{"a", 8, 2},
+	}
+
+	for i, c := range cases {
+		ta.Panics(func() { Get(c.s, c.n, c.ith) }, "%d-th: %v", i+1, c)
+	}
+}

@@ -91,3 +91,16 @@ func ToStrs(bytesslice [][]byte, n int) []string {
 	}
 	return rst
 }
+
+// Get returns i-th n-bit word from a string.
+//
+// n must be one of 1, 2, 4, 8
+//
+// Since 0.1.2
+func Get(s string, n int, ith int) byte {
+	i := n * ith
+	end := (i + n - 1) & 7
+
+	word := s[i>>3]
+	return (word >> uint(7-end)) & wordMask[n]
+}
