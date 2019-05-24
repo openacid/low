@@ -111,7 +111,7 @@ func Get(s string, n int, ith int) byte {
 //
 // Since 0.1.2
 func FirstDiff(a, b string, n int, from, end int) int {
-	la, lb := len(a)*8, len(b)*8
+	la, lb := len(a)*8/n, len(b)*8/n
 
 	if end == -1 {
 		end = la
