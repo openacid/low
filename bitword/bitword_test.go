@@ -1,4 +1,4 @@
-package bw8
+package bitword
 
 import (
 	"reflect"

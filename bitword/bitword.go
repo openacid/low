@@ -1,5 +1,5 @@
-// Package bw8 provides string operations functions
-package bw8
+// Package bitword provides string operations functions
+package bitword
 
 // Interface defines operations for n-bit word.
 //
