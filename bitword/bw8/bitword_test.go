@@ -64,14 +64,14 @@ func TestToAndFromStr(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		res := FromStr(c.src, c.n)
+		res := BitWord[c.n].FromStr(c.src)
 
 		if !reflect.DeepEqual(res, c.want) {
 			t.Errorf("test %d: got %#v, want %#v",
 				i+1, res, c.want)
 		}
 
-		str := ToStr(res, c.n)
+		str := BitWord[c.n].ToStr(res)
 		if str != c.src {
 			t.Fatalf(" expect: %v; but: %v", c.src, str)
 		}
@@ -80,30 +80,9 @@ func TestToAndFromStr(t *testing.T) {
 
 func TestToStrIncomplete(t *testing.T) {
 	ta := require.New(t)
-	got := ToStr([]byte{1, 2, 3}, 4)
+	got := BitWord[4].ToStr([]byte{1, 2, 3})
 	want := "\x12\x30"
 	ta.Equal(want, got)
-}
-
-func TestToAndFromStrPanic(t *testing.T) {
-
-	ta := require.New(t)
-
-	ta.Panics(func() { FromStr("1", -1) }, "ToBitWords, n= -1")
-	ta.Panics(func() { FromStr("1", 0) }, "ToBitWords, n= 0")
-	ta.Panics(func() { FromStr("1", 3) }, "ToBitWords, n= 3")
-	ta.Panics(func() { FromStr("1", 5) }, "ToBitWords, n= 5")
-	ta.Panics(func() { FromStr("1", 6) }, "ToBitWords, n= 6")
-	ta.Panics(func() { FromStr("1", 7) }, "ToBitWords, n= 7")
-	ta.Panics(func() { FromStr("1", 9) }, "ToBitWords, n= 9")
-
-	ta.Panics(func() { ToStr([]byte{1}, -1) }, "ToBitWords, n= -1")
-	ta.Panics(func() { ToStr([]byte{1}, 0) }, "ToBitWords, n= 0")
-	ta.Panics(func() { ToStr([]byte{1}, 3) }, "ToBitWords, n= 3")
-	ta.Panics(func() { ToStr([]byte{1}, 5) }, "ToBitWords, n= 5")
-	ta.Panics(func() { ToStr([]byte{1}, 6) }, "ToBitWords, n= 6")
-	ta.Panics(func() { ToStr([]byte{1}, 7) }, "ToBitWords, n= 7")
-	ta.Panics(func() { ToStr([]byte{1}, 9) }, "ToBitWords, n= 9")
 }
 
 func TestToAndFromStrs(t *testing.T) {
@@ -130,13 +109,13 @@ func TestToAndFromStrs(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		rst := FromStrs(c.input, c.n)
+		rst := BitWord[c.n].FromStrs(c.input)
 		if !reflect.DeepEqual(c.want, rst) {
 			t.Fatalf("%d-th: input: %v; want: %v; actual: %v",
 				i+1, c.input, c.want, rst)
 		}
 
-		strs := ToStrs(rst, c.n)
+		strs := BitWord[c.n].ToStrs(rst)
 		if !reflect.DeepEqual(c.input, strs) {
 			t.Fatalf("%d-th expect: %v; but: %v", i+1, c.input, strs)
 		}
@@ -185,7 +164,7 @@ func TestGet(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		got := Get(c.input.s, c.input.n, c.input.ith)
+		got := BitWord[c.input.n].Get(c.input.s, c.input.ith)
 		ta.Equal(c.want, got,
 			"%d-th: input: %#v; want: %#v; got: %#v",
 			i+1, c.input, c.want, got)
@@ -216,7 +195,7 @@ func TestGet_panic(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		ta.Panics(func() { Get(c.s, c.n, c.ith) }, "%d-th: %v", i+1, c)
+		ta.Panics(func() { BitWord[c.n].Get(c.s, c.ith) }, "%d-th: %v", i+1, c)
 	}
 }
 
@@ -258,7 +237,7 @@ func TestFirstDiff(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		got := FirstDiff(c.a, c.b, c.n, c.from, c.end)
+		got := BitWord[c.n].FirstDiff(c.a, c.b, c.from, c.end)
 		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
 	}
 }

@@ -1,32 +1,81 @@
 // Package bw8 provides string operations functions
 package bw8
 
+// Interface defines operations for n-bit word.
+//
+// Since 0.1.4
+type Interface interface {
+	// FromStr split a string into a slice of `n`-bit words in byte.
+	//
+	// Since 0.1.4
+	FromStr(string) []byte
+	// FromStrs converts a `[]string` to a n-bit word `[][]byte`.
+	//
+	// Since 0.1.4
+	FromStrs([]string) [][]byte
+	// ToStr is the reverse of FromStr.
+	//
+	// Since 0.1.4
+	ToStr([]byte) string
+	// ToStrs converts a `[][]byte` back to a `[]string`.
+	//
+	// Since 0.1.4
+	ToStrs([][]byte) []string
+	// Get returns i-th n-bit word from a string.
+	//
+	// Since 0.1.4
+	Get(string, int) byte
+	// FirstDiff returns the index of the first different n-bit word,
+	// from "start" upto "end".
+	//
+	// Since 0.1.4
+	FirstDiff(a, b string, start, end int) int
+}
+
+// bitWord implements `n`-bit word operations.
+//
+// Since 0.1.4
+type bitWord struct {
+	// width is the word width.
+	width int
+	// byteCap defines how many words a byte contains.
+	// It is 8 / width.
+	byteCap int
+	// wordMask is bit mask.
+	// It sets the least siginicant "width" bit to 1.
+	wordMask byte
+}
+
+func newBW(n int) Interface {
+	return &bitWord{
+		width:    n,
+		byteCap:  8 / n,
+		wordMask: (1 << uint(n)) - 1,
+	}
+}
+
 var (
-	// mask for 1, 2, 4, 8 bit word
-	wordMask = []byte{
-		// 1, 2, 3, 4, 5, 6, 7, 8
-		0, 1, 3, 0, 15, 0, 0, 0, 255,
+	// BitWord pre-defines n-bit words operations for 1, 2, 4, 8
+	BitWord = map[int]Interface{
+		1: newBW(1),
+		2: newBW(2),
+		4: newBW(4),
+		8: newBW(8),
 	}
 )
 
 // FromStr split a string into a slice of byte.
 // A byte in string is split into 8/`n` `n`-bit words
 // Value of every byte is in range [0, 2^n-1].
-// `n` must be a one of [1, 2, 4, 8].
 //
 // Significant bits in a byte is place at left.
 // Thus the result byte slice keeps order with the original string.
 //
-// Since 0.1.2
-func FromStr(s string, n int) []byte {
-	if wordMask[n] == 0 {
-		panic("n must be one of 1, 2, 4, 8")
-	}
-
-	mask := wordMask[n]
+// Since 0.1.4
+func (w *bitWord) FromStr(s string) []byte {
 
 	// number of words per byte
-	m := 8 / n
+	m := w.byteCap
 	lenSrc := len(s)
 	words := make([]byte, lenSrc*m)
 
@@ -34,7 +83,7 @@ func FromStr(s string, n int) []byte {
 		b := s[i]
 
 		for j := 0; j < m; j++ {
-			words[i*m+j] = (b >> uint(8-n*j-n)) & mask
+			words[i*m+j] = (b >> uint(8-w.width*j-w.width)) & w.wordMask
 		}
 	}
 	return words
@@ -42,26 +91,22 @@ func FromStr(s string, n int) []byte {
 
 // FromStrs converts a `[]string` to a n-bit word `[][]byte`.
 //
-// Since 0.1.2
-func FromStrs(strs []string, n int) [][]byte {
+// Since 0.1.4
+func (w *bitWord) FromStrs(strs []string) [][]byte {
 	rst := make([][]byte, len(strs))
 	for i, s := range strs {
-		rst[i] = FromStr(s, n)
+		rst[i] = w.FromStr(s)
 	}
 	return rst
 }
 
 // ToStr is the reverse of FromStr.
-// It composes a string of which each byte is formed from 8/n words from bs.
 //
-// Since 0.1.2
-func ToStr(bs []byte, n int) string {
-	if wordMask[n] == 0 {
-		panic("n must be one of 1, 2, 4, 8")
-	}
+// Since 0.1.4
+func (w *bitWord) ToStr(bs []byte) string {
 
 	// number of words per byte
-	m := 8 / n
+	m := w.byteCap
 	sz := (len(bs) + m - 1) / m
 	strbs := make([]byte, sz)
 
@@ -70,9 +115,9 @@ func ToStr(bs []byte, n int) string {
 		b = 0
 		for j := 0; j < m; j++ {
 			if i*m+j < len(bs) {
-				b = (b << uint(n)) + bs[i*m+j]
+				b = (b << uint(w.width)) + bs[i*m+j]
 			} else {
-				b = b << uint(n)
+				b = b << uint(w.width)
 			}
 		}
 		strbs[i] = b
@@ -83,35 +128,33 @@ func ToStr(bs []byte, n int) string {
 
 // ToStrs converts a `[][]byte` back to a `[]string`.
 //
-// Since 0.1.2
-func ToStrs(bytesslice [][]byte, n int) []string {
+// Since 0.1.4
+func (w *bitWord) ToStrs(bytesslice [][]byte) []string {
 	rst := make([]string, len(bytesslice))
 	for i, s := range bytesslice {
-		rst[i] = ToStr(s, n)
+		rst[i] = w.ToStr(s)
 	}
 	return rst
 }
 
 // Get returns i-th n-bit word from a string.
 //
-// n must be one of 1, 2, 4, 8
-//
-// Since 0.1.2
-func Get(s string, n int, ith int) byte {
-	i := n * ith
-	end := (i + n - 1) & 7
+// Since 0.1.4
+func (w *bitWord) Get(s string, ith int) byte {
+	i := w.width * ith
+	end := (i + w.width - 1) & 7
 
 	word := s[i>>3]
-	return (word >> uint(7-end)) & wordMask[n]
+	return (word >> uint(7-end)) & w.wordMask
 }
 
 // FirstDiff returns the index of the first different n-bit word,
 // that ge "from" and lt "end".
 // If "end" is -1 it means to look up upto end of a or b.
 //
-// Since 0.1.2
-func FirstDiff(a, b string, n int, from, end int) int {
-	la, lb := len(a)*8/n, len(b)*8/n
+// Since 0.1.4
+func (w *bitWord) FirstDiff(a, b string, from, end int) int {
+	la, lb := len(a)*w.byteCap, len(b)*w.byteCap
 
 	if end == -1 {
 		end = la
@@ -126,7 +169,7 @@ func FirstDiff(a, b string, n int, from, end int) int {
 	}
 
 	for i := from; i < end; i++ {
-		if Get(a, n, i) != Get(b, n, i) {
+		if w.Get(a, i) != w.Get(b, i) {
 			return i
 		}
 	}
