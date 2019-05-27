@@ -22,5 +22,5 @@ go get github.com/openacid/low/...
 -   `size` provides value size operations.
     [![GoDoc](https://godoc.org/github.com/openacid/low/size?status.svg)](http://godoc.org/github.com/openacid/low/size)
 
--   `bitword/bw8` provides n-bit word conversion to and from string.
-    [![GoDoc](https://godoc.org/github.com/openacid/low/bitword/bw8?status.svg)](http://godoc.org/github.com/openacid/low/bitword/bw8)
+-   `bitword` provides n-bit word conversion to and from string.
+    [![GoDoc](https://godoc.org/github.com/openacid/low/bitword?status.svg)](http://godoc.org/github.com/openacid/low/bitword)
