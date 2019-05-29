@@ -24,3 +24,6 @@ go get github.com/openacid/low/...
 
 -   `bitword` provides n-bit word conversion to and from string.
     [![GoDoc](https://godoc.org/github.com/openacid/low/bitword?status.svg)](http://godoc.org/github.com/openacid/low/bitword)
+
+-   `iohelper` provides extra interfaces than package io.
+    [![GoDoc](https://godoc.org/github.com/openacid/low/iohelper?status.svg)](http://godoc.org/github.com/openacid/low/iohelper)
