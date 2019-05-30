@@ -6,6 +6,24 @@ import (
 	"io"
 )
 
+const (
+	maxOffset int64 = 0x7fffffffffffffff
+)
+
+// AtToWriter convert a WriterAt to a Writer
+//
+// Since 0.1.6
+func AtToWriter(w io.WriterAt, offset int64) io.Writer {
+	return NewSectionWriter(w, offset, maxOffset-offset)
+}
+
+// AtToReader convert a ReaderAt to a Reader
+//
+// Since 0.1.6
+func AtToReader(r io.ReaderAt, offset int64) io.Reader {
+	return io.NewSectionReader(r, offset, maxOffset-offset)
+}
+
 // NewSectionWriter returns a SectionWriter that writes to w
 // starting at offset off and stops with io.ErrShortWrite after n bytes.
 //

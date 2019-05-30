@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Tests except TestSectionWriter_Write are copied from `io_test.go`.
@@ -58,7 +59,7 @@ func clamp(v, l, r int) int {
 
 func TestSectionWriter_WriteAt(t *testing.T) {
 
-	ta := assert.New(t)
+	ta := require.New(t)
 
 	dat := "a long sample data, 1234567890"
 	tests := []struct {
@@ -105,7 +106,7 @@ func TestSectionWriter_WriteAt(t *testing.T) {
 
 func TestSectionWriter_Write(t *testing.T) {
 
-	ta := assert.New(t)
+	ta := require.New(t)
 
 	dat := "a long sample data, 1234567890"
 	tests := []struct {
@@ -140,6 +141,7 @@ func TestSectionWriter_Write(t *testing.T) {
 		ta.Equal(len(tt.exp), n, msg)
 		ta.Equal(tt.exp, string(w.Buf[left:right]), msg)
 		ta.Equal(tt.err, err, msg)
+
 	}
 }
 
@@ -175,7 +177,7 @@ func TestSectionWriter_Seek(t *testing.T) {
 
 func TestSectionWriter_Size(t *testing.T) {
 
-	ta := assert.New(t)
+	ta := require.New(t)
 
 	tests := []struct {
 		data string
@@ -193,5 +195,70 @@ func TestSectionWriter_Size(t *testing.T) {
 		msg := fmt.Sprintf("Size = %v; want %v", got, tt.want)
 
 		ta.Equal(tt.want, got, msg)
+	}
+}
+
+func TestAtToWriter(t *testing.T) {
+
+	ta := require.New(t)
+
+	dat := "a long sample data, 1234567890"
+	tests := []struct {
+		data   string
+		off    int
+		bufLen int
+		exp    string
+		err    error
+	}{
+		{data: "", off: 0, bufLen: 2, exp: "", err: nil},
+		{data: dat, off: 0, bufLen: 0, exp: "", err: errBufferTooShort},
+		{data: dat, off: len(dat), bufLen: 1, exp: "", err: errBufferTooShort},
+		{data: dat, off: 0, bufLen: len(dat), exp: dat, err: nil},
+		{data: dat, off: 0, bufLen: len(dat) / 2, exp: dat[:len(dat)/2], err: errBufferTooShort},
+		{data: dat, off: 0, bufLen: len(dat), exp: dat, err: nil},
+		{data: dat, off: len(dat) / 2, bufLen: len(dat), exp: dat[:len(dat)/2], err: errBufferTooShort},
+	}
+	for i, tt := range tests {
+
+		w := NewFooWriterAt(tt.bufLen)
+		s := AtToWriter(w, int64(tt.off))
+		buf := []byte(tt.data)
+		n, err := s.Write(buf)
+
+		left := clamp(tt.off, 0, len(w.Buf))
+		right := clamp(tt.off+n, 0, len(w.Buf))
+
+		msg := fmt.Sprintf("%d: Write() = %q, %v; expected %q, %v", i, w.Buf[left:right], err, tt.exp, tt.err)
+
+		ta.Equal(len(tt.exp), n, msg)
+		ta.Equal(tt.exp, string(w.Buf[left:right]), msg)
+		ta.Equal(tt.err, err, msg)
+
+	}
+}
+
+func TestAtToReader(t *testing.T) {
+	dat := "a long sample data, 1234567890"
+	tests := []struct {
+		data   string
+		off    int
+		bufLen int
+		exp    string
+		err    error
+	}{
+		{data: "", off: 0, bufLen: 2, exp: "", err: io.EOF},
+		{data: dat, off: 0, bufLen: 0, exp: "", err: nil},
+		{data: dat, off: len(dat), bufLen: 1, exp: "", err: io.EOF},
+		{data: dat, off: 0, bufLen: len(dat), exp: dat, err: nil},
+		{data: dat, off: 0, bufLen: len(dat) / 2, exp: dat[:len(dat)/2], err: nil},
+		{data: dat, off: 0, bufLen: len(dat), exp: dat, err: nil},
+	}
+	for i, tt := range tests {
+		r := strings.NewReader(tt.data)
+		s := AtToReader(r, int64(tt.off))
+		buf := make([]byte, tt.bufLen)
+		if n, err := s.Read(buf); n != len(tt.exp) || string(buf[:n]) != tt.exp || err != tt.err {
+			t.Fatalf("%d: Read() = %q, %v; expected %q, %v", i, buf[:n], err, tt.exp, tt.err)
+		}
 	}
 }
