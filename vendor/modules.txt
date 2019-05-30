@@ -1,5 +1,9 @@
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
+# github.com/golang/protobuf v1.3.1
+github.com/golang/protobuf/proto
+# github.com/openacid/errors v0.8.1
+github.com/openacid/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.3.0
