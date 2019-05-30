@@ -1,3 +1,5 @@
+# github.com/blang/semver v3.5.1+incompatible
+github.com/blang/semver
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/golang/protobuf v1.3.1
