@@ -21,6 +21,31 @@ var (
 	endian    = binary.LittleEndian
 )
 
+// Header defines header info retrieving APIs.
+//
+// Since 0.1.7
+type Header interface {
+	GetVersion() string
+	GetHeaderSize() int64
+	GetBodySize() int64
+}
+
+type headerInfo struct {
+	*header
+}
+
+func (hi *headerInfo) GetVersion() string {
+	return verStr(hi.Version[:])
+}
+
+func (hi *headerInfo) GetHeaderSize() int64 {
+	return int64(hi.HeaderSize)
+}
+
+func (hi *headerInfo) GetBodySize() int64 {
+	return int64(hi.BodySize)
+}
+
 // header is a fixed-size structure that defines the header format of a
 // marshaled byte stream.
 //

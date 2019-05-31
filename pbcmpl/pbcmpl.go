@@ -78,11 +78,13 @@ func Marshal(w io.Writer, msg proto.Message) (int64, error) {
 	return int64(n), nil
 }
 
-// Unmarshal a header and following message form an io.Reader .
-// It returns the number of read bytes, a version in string and an error.
+// ReadHeader reads header info from a stream marshaled by this module.
+// It returns number of bytes it has read, a Header interface for retreiving
+// header info and an error.
+// The number of bytes may be greater than 0 even if there is an error.
 //
-// Since 0.1.6
-func Unmarshal(r io.Reader, msg proto.Message) (int64, string, error) {
+// Since 0.1.7
+func ReadHeader(r io.Reader) (int64, Header, error) {
 
 	b := make([]byte, fixedSize)
 
@@ -92,30 +94,44 @@ func Unmarshal(r io.Reader, msg proto.Message) (int64, string, error) {
 	//     nil:              means n == len(buf)
 	n, err := io.ReadFull(r, b)
 	if err != nil {
-		return int64(n), "", errors.WithStack(err)
+		return int64(n), nil, errors.WithStack(err)
 	}
 
 	h := &header{}
 	err = proto.Unmarshal(b, h)
 	if err != nil {
-		return int64(n), "", errors.WithStack(err)
+		return int64(n), nil, errors.WithStack(err)
 	}
 
-	ver := verStr(h.Version[:])
+	return int64(n), &headerInfo{h}, nil
+}
 
-	if h.HeaderSize != uint64(fixedSize) {
-		return int64(n), ver, errors.WithStack(ErrInvalidHeaderSize)
-	}
+// Unmarshal a header and following message form an io.Reader .
+// It returns the number of read bytes, a version in string and an error.
+//
+// Since 0.1.6
+func Unmarshal(r io.Reader, msg proto.Message) (int64, string, error) {
 
-	b = make([]byte, h.BodySize)
-	nbody, err := io.ReadFull(r, b)
-	n += nbody
+	n, hi, err := ReadHeader(r)
 	if err != nil {
-		return int64(n), ver, errors.WithStack(err)
+		return n, "", err
+	}
+
+	ver := hi.GetVersion()
+
+	if hi.GetHeaderSize() != int64(fixedSize) {
+		return n, ver, errors.WithStack(ErrInvalidHeaderSize)
+	}
+
+	b := make([]byte, hi.GetBodySize())
+	nbody, err := io.ReadFull(r, b)
+	n += int64(nbody)
+	if err != nil {
+		return n, ver, errors.WithStack(err)
 	}
 
 	err = proto.Unmarshal(b, msg)
-	return int64(n), ver, errors.WithStack(err)
+	return n, ver, errors.WithStack(err)
 }
 
 // HeaderSize returns the marshaled size of the header for a proto.Message .

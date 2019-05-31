@@ -40,6 +40,25 @@ func TestNewHeader(t *testing.T) {
 	ta.Equal(ver, verStr(h.Version[:]))
 }
 
+func TestReadHeader(t *testing.T) {
+
+	ta := require.New(t)
+
+	msg := &vh{}
+	rw := &IncomleteReaderWriter{}
+	n, err := Marshal(rw, msg)
+	ta.Nil(err)
+	ta.Equal(int64(64), n)
+
+	n, h, err := ReadHeader(rw)
+
+	ta.Nil(err)
+	ta.Equal(int64(32), n)
+	ta.Equal("1.2.3", h.GetVersion())
+	ta.Equal(int64(32), h.GetHeaderSize())
+	ta.Equal(int64(32), h.GetBodySize())
+}
+
 func TestMarshalUnMarshal(t *testing.T) {
 
 	ta := require.New(t)
@@ -124,19 +143,27 @@ func (rw *IncomleteReaderWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-type badMessage struct {
+type badMarshal struct {
 	header
 }
 
-func (b *badMessage) Marshal() ([]byte, error) {
-	return nil, errors.New("badMessage")
+func (b *badMarshal) Marshal() ([]byte, error) {
+	return nil, errors.New("badMarshal")
+}
+
+type badUnmarshal struct {
+	header
+}
+
+func (b *badUnmarshal) Unmarshal(buf []byte) error {
+	return errors.New("badUnmarshal")
 }
 
 func TestMarshal_Error(t *testing.T) {
 
 	ta := require.New(t)
 
-	msg := &badMessage{
+	msg := &badMarshal{
 		header: header{
 			Version:    [16]byte{1, 2, 3, 4},
 			HeaderSize: 456,
@@ -147,7 +174,7 @@ func TestMarshal_Error(t *testing.T) {
 	rw := newBuf(512)
 	n, err := Marshal(iohelper.AtToWriter(rw, 0), msg)
 	ta.Equal(int64(0), n)
-	ta.Equal("badMessage", err.Error())
+	ta.Equal("badMarshal", err.Error())
 }
 
 func TestMarshal_WriteError(t *testing.T) {
@@ -175,6 +202,23 @@ func TestMarshal_WriteError(t *testing.T) {
 	n, err = Marshal(iohelper.AtToWriter(rw, 0), msg)
 	ta.Equal(int64(33), n)
 	ta.Equal("OutOfBoundary", err.Error())
+}
+
+func TestUnmarshal_Error(t *testing.T) {
+
+	ta := require.New(t)
+
+	msg := &badUnmarshal{}
+
+	rw := newBuf(64)
+	_, err := Marshal(iohelper.AtToWriter(rw, 0), msg)
+	ta.Nil(err)
+
+	m2 := &badUnmarshal{}
+	n, ver, err := Unmarshal(iohelper.AtToReader(rw, 0), m2)
+	ta.Equal(int64(64), n)
+	ta.Equal("1.0.0", ver)
+	ta.Equal("badUnmarshal", err.Error())
 }
 
 func TestUnmarshal_ReadError(t *testing.T) {
@@ -263,9 +307,9 @@ func TestUnMarshal_IncompleteReader(t *testing.T) {
 		},
 	}
 
-	rw := newBuf(512)
+	rw := &IncomleteReaderWriter{}
 
-	n, err := Marshal(iohelper.AtToWriter(rw, 0), msg)
+	n, err := Marshal(rw, msg)
 	ta.Nil(err)
 	ta.Equal(int64(64), n)
 
@@ -273,7 +317,7 @@ func TestUnMarshal_IncompleteReader(t *testing.T) {
 
 	m2 := &vh{}
 
-	n, ver, err := Unmarshal(iohelper.AtToReader(rw, 0), m2)
+	n, ver, err := Unmarshal(rw, m2)
 	ta.Nil(err)
 	ta.Equal(int64(64), n)
 	ta.Equal("1.2.3", ver)
