@@ -38,6 +38,12 @@ func TestNewHeader(t *testing.T) {
 	ta.Equal(dataSize, h.BodySize)
 	ta.Equal(headerSize, h.HeaderSize)
 	ta.Equal(ver, verStr(h.Version[:]))
+
+	ta.Equal("0.0.1 32 1000", h.String())
+
+	// 16 byte ver, no panic
+	_ = newHeader("111111111111.2.6", 10)
+	ta.Panics(func() { newHeader("111111111111.2.62", 10) })
 }
 
 func TestReadHeader(t *testing.T) {
