@@ -69,6 +69,8 @@ func TestHeader_MarshalUnmarshal(t *testing.T) {
 	err = proto.Unmarshal(b, h2)
 	ta.Nil(err)
 	ta.Equal(h, h2)
+
+	h.ProtoMessage()
 }
 
 func TestReadHeader(t *testing.T) {
