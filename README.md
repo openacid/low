@@ -1,7 +1,6 @@
 # low
 low level data type and utils in Golang.
 
-
 [![Travis-CI](https://api.travis-ci.org/openacid/low.svg?branch=master)](https://travis-ci.org/openacid/low)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/1jnttodaenbrv3va/branch/master?svg=true)](https://ci.appveyor.com/project/drmingdrmer/low/branch/master)
 [![GoDoc](https://godoc.org/github.com/openacid/low?status.svg)](http://godoc.org/github.com/openacid/low)
@@ -10,6 +9,14 @@ low level data type and utils in Golang.
 [![Sourcegraph](https://sourcegraph.com/github.com/openacid/low/-/badge.svg)](https://sourcegraph.com/github.com/openacid/low?badge)
 [![Coverage Status](https://coveralls.io/repos/github/openacid/low/badge.svg?branch=master)](https://coveralls.io/github/openacid/low?branch=master)
 
+A stable low level function set is the basis of a robust architecture.
+It focuses on stability and requires high test coverage.
+
+# Status
+
+![stability-stable](https://img.shields.io/badge/stability-stable-green.svg)
+
+This project has been supporting all of our other go projects.
 
 # Install
 
