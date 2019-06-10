@@ -85,6 +85,10 @@ func TestSectionWriter_WriteAt(t *testing.T) {
 		// 10
 		{data: dat, off: 0, n: 0, bufLen: 0, at: -1, exp: "", err: io.ErrShortWrite},
 		{data: dat, off: 0, n: 0, bufLen: 0, at: 1, exp: "", err: io.ErrShortWrite},
+
+		// Test ErrShortWrite returned from SectionWriter.WriteAt if exceeds
+		// section boundary.
+		{data: dat, off: 2, n: 5, bufLen: 10, at: 1, exp: "a lo", err: io.ErrShortWrite},
 	}
 	for i, tt := range tests {
 		w := NewFooWriterAt(tt.bufLen)
@@ -147,6 +151,8 @@ func TestSectionWriter_Write(t *testing.T) {
 
 func TestSectionWriter_Seek(t *testing.T) {
 
+	ta := require.New(t)
+
 	// Verifies that NewSectionWriter's Seeker behaves like bytes.NewReader (which is like strings.NewReader)
 	br := bytes.NewReader([]byte("foo"))
 	w := NewFooWriterAt(3)
@@ -168,6 +174,12 @@ func TestSectionWriter_Seek(t *testing.T) {
 	if err != nil || got != 100 {
 		t.Errorf("Seek = %v, %v; want 100, nil", got, err)
 	}
+
+	_, err = sw.Seek(100, 3)
+	ta.Equal("Seek: invalid whence", err.Error(), "invalid whence")
+
+	_, err = sw.Seek(-100, io.SeekStart)
+	ta.Equal("Seek: invalid offset", err.Error(), "invalid offset")
 
 	n, err := sw.Write(make([]byte, 10))
 	if n != 0 || err != io.ErrShortWrite {
