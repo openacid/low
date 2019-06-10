@@ -23,10 +23,16 @@ func TestIsCompatible(t *testing.T) {
 		{"3.1.1", []string{`>1.0.0 <2.0.0`, `>3.0.0 !4.2.1`}, true},
 		{"2.1.1", []string{`>1.0.0 <2.0.0`, `>3.0.0 !4.2.1`}, false},
 		{"4.2.1", []string{`>1.0.0 <2.0.0`, `>3.0.0 !4.2.1`}, false},
+
+		// invalid version
+		{"abc.e", []string{"1.0.0"}, false},
+		{"1.0.0", []string{"a.b.c"}, false},
+		{"1.0.0", []string{"1.2.3", "a.b.c"}, false},
 	}
 
 	for i, c := range cases {
 		got := IsCompatible(c.input, c.spec)
 		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
 	}
+
 }
