@@ -3,6 +3,7 @@ package pbcmpl
 import (
 	"testing"
 
+	proto "github.com/golang/protobuf/proto"
 	"github.com/openacid/errors"
 
 	"github.com/openacid/low/iohelper"
@@ -44,6 +45,32 @@ func TestNewHeader(t *testing.T) {
 	// 16 byte ver, no panic
 	_ = newHeader("111111111111.2.6", 10)
 	ta.Panics(func() { newHeader("111111111111.2.62", 10) })
+}
+
+func TestHeader_MarshalUnmarshal(t *testing.T) {
+
+	ta := require.New(t)
+
+	ver := "0.0.1"
+	dataSize := uint64(0xffff01)
+	h := newHeader(ver, dataSize)
+
+	b, err := proto.Marshal(h)
+	ta.Nil(err)
+
+	want := append([]byte("0.0.1"), make([]byte, 11)...)
+	want = append(want,
+		32, 0, 0, 0,
+		0, 0, 0, 0)
+	want = append(want,
+		1, 0xff, 0xff, 0,
+		0, 0, 0, 0)
+	ta.Equal(want, b)
+
+	h2 := &header{}
+	err = proto.Unmarshal(b, h2)
+	ta.Nil(err)
+	ta.Equal(h, h2)
 }
 
 func TestReadHeader(t *testing.T) {
