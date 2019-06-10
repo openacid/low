@@ -231,6 +231,7 @@ func TestFirstDiff(t *testing.T) {
 
 		{"aac", "aa", 4, 0, 4, 4},
 		{"aac", "ab", 4, 0, 4, 3},
+		{"aac", "ab", 4, 0, 100, 3},
 
 		// bug in 0.1.2
 		{"aaa", "aaa", 4, 0, -1, 6},
