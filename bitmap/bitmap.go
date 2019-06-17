@@ -6,4 +6,5 @@ package bitmap
 
 func init() {
 	initMasks()
+	initSelectLookup()
 }
