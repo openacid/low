@@ -3,3 +3,7 @@
 //
 // Since 0.1.8
 package bitmap
+
+func init() {
+	initMasks()
+}
