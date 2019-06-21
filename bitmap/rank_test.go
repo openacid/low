@@ -64,5 +64,45 @@ func TestIndexRank(t *testing.T) {
 
 		idx128 := IndexRank128(c.bm)
 		ta.Equal(c.want128, idx128, "%d-th: case: %+v", i+1, c)
+
+		// test Rank64 and Rank128
+		cnt := int32(0)
+		cntExcludeI := int32(0)
+		for j := 0; j < len(c.bm)*64; j++ {
+			if c.bm[j>>6]&(1<<uint(j&63)) != 0 {
+				cnt++
+			}
+
+			rExc, isSet := Rank64(c.bm, idx64, int32(j))
+			ta.Equal(cntExcludeI, rExc, "bm: %+v, idx64:%+v j:%d", c.bm, idx64, j)
+			ta.Equal(cnt-cntExcludeI, isSet, "bm: %+v, idx64:%+v j:%d", c.bm, idx64, j)
+
+			rExc, isSet = Rank128(c.bm, idx128, int32(j))
+			ta.Equal(cntExcludeI, rExc)
+			ta.Equal(cnt-cntExcludeI, isSet)
+
+			cntExcludeI = cnt
+		}
 	}
+}
+
+func TestRank_panic(t *testing.T) {
+
+	ta := require.New(t)
+
+	nums := []int32{1, 3, 64, 129}
+	bm := Of(nums)
+
+	idx64 := IndexRank64(bm)
+	idx128 := IndexRank64(bm)
+
+	ta.Panics(func() { Rank64(bm, idx64, -1) })
+	ta.Panics(func() { Rank128(bm, idx128, -1) })
+
+	// no panic
+	_, _ = Rank64(bm, idx64, 130)
+	_, _ = Rank128(bm, idx128, 191)
+
+	ta.Panics(func() { Rank64(bm, idx64, 192) })
+	ta.Panics(func() { Rank128(bm, idx128, 192) })
 }
