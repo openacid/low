@@ -19,6 +19,7 @@ package sigbits
 type SigBits struct {
 	keys    []string
 	sigbits []int32
+	ends    []int
 }
 
 // New creates a SigBits struct.
@@ -28,6 +29,7 @@ func New(keys []string) *SigBits {
 	sb := &SigBits{
 		keys:    keys,
 		sigbits: FirstDiffBits(keys),
+		ends:    endsOf(keys),
 	}
 
 	return sb
