@@ -75,12 +75,12 @@ func TestToString(t *testing.T) {
 	rst := tree.String(tr)
 	want := `
 #00(foo)*2
-   -000->#01(foo)
-            -000->#03(foo)*2
-                     -000->#05(foo)=leaf
-                     -001->#06(foo)=leaf
-   -001->#02(foo)
-            -000->#04(foo)=leaf`[1:]
+   -0->#01(foo)
+          -0->#03(foo)*2
+                 -0->#05(foo)=leaf
+                 -1->#06(foo)=leaf
+   -1->#02(foo)
+          -0->#04(foo)=leaf`[1:]
 	if want != rst {
 		t.Fatalf("expect: \n%v\n; but: \n%v\n", want, rst)
 	}
