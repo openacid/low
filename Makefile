@@ -12,6 +12,7 @@ check: test vet gofmt misspell unconvert staticcheck ineffassign unparam
 travis: test vet gofmt misspell unconvert ineffassign unparam coveralls
 
 test:
+	$(GO) test -tags debug $(PKGS)
 	$(GO) test $(PKGS)
 
 vet: | test
