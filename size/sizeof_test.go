@@ -26,10 +26,15 @@ func TestSizeOf(t *testing.T) {
 
 	ta := require.New(t)
 
+	boolV := true
+
 	cases := []struct {
 		input interface{}
 		want  int
 	}{
+		{true, 1},
+		{boolV, 1},
+		{&boolV, 8 + 1},
 		{"abc", 16 + 3},
 
 		{uint8(0), 1}, {int8(0), 1},
