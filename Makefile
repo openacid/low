@@ -76,5 +76,6 @@ fix:
 coveralls:
 	$(GO) get golang.org/x/tools/cmd/cover
 	$(GO) get github.com/mattn/goveralls
-	$(GO) test -v -covermode=count -coverprofile=coverage.out $(PKGS)
+	# enable debug mode to cover must.Be statements
+	$(GO) test -tags debug -v -covermode=count -coverprofile=coverage.out $(PKGS)
 	$$HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $$COVERALLS_TOKEN
