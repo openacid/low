@@ -11,3 +11,24 @@
 //
 // Since 0.1.9
 package sigbits
+
+// SigBits is a helper to get information about how many bits are required to
+// distinguish a set of keys.
+//
+// Since 0.1.9
+type SigBits struct {
+	keys    []string
+	sigbits []int32
+}
+
+// New creates a SigBits struct.
+//
+// Since 0.1.9
+func New(keys []string) *SigBits {
+	sb := &SigBits{
+		keys:    keys,
+		sigbits: FirstDiffBits(keys),
+	}
+
+	return sb
+}
