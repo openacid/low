@@ -17,42 +17,42 @@ func TestIndexRank(t *testing.T) {
 	}{
 		{
 			[]uint64{},
-			[]int32{},
+			[]int32{0},
 			[]int32{0},
 		},
 		{
 			[]uint64{0},
-			[]int32{0},
+			[]int32{0, 0},
 			[]int32{0},
 		},
 		{
 			[]uint64{1},
-			[]int32{0},
+			[]int32{0, 1},
 			[]int32{0},
 		},
 		{
 			[]uint64{0xffffffffffffffff},
-			[]int32{0},
+			[]int32{0, 64},
 			[]int32{0},
 		},
 		{
 			[]uint64{0xffffffffffffffff, 1},
-			[]int32{0, 64},
-			[]int32{0, 65},
-		},
-		{
-			[]uint64{0xffffffffffffffff, 1, 1},
 			[]int32{0, 64, 65},
 			[]int32{0, 65},
 		},
 		{
-			[]uint64{0xffffffffffffffff, 1, 1, 3},
+			[]uint64{0xffffffffffffffff, 1, 1},
 			[]int32{0, 64, 65, 66},
+			[]int32{0, 65},
+		},
+		{
+			[]uint64{0xffffffffffffffff, 1, 1, 3},
+			[]int32{0, 64, 65, 66, 68},
 			[]int32{0, 65, 68},
 		},
 		{
 			[]uint64{0xffffffffffffffff, 1, 1, 3, 4},
-			[]int32{0, 64, 65, 66, 68},
+			[]int32{0, 64, 65, 66, 68, 69},
 			[]int32{0, 65, 68},
 		},
 	}

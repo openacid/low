@@ -13,12 +13,13 @@ import (
 // Since 0.1.8
 func IndexRank64(words []uint64) []int32 {
 
-	idx := make([]int32, len(words))
+	idx := make([]int32, len(words)+1)
 	n := int32(0)
 	for i := 0; i < len(words); i++ {
 		idx[i] = n
 		n += int32(bits.OnesCount64(words[i]))
 	}
+	idx[len(words)] = n
 
 	return idx
 }
