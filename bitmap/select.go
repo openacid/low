@@ -158,7 +158,6 @@ func Select32(words []uint64, selectIndex []int32, i int32) (int32, int32) {
 	findIth := int(i & 31)
 
 	l := int32(len(words))
-	bitL := l << 6
 	wordI := base >> 6
 	w := words[wordI]
 	// remove "1" upto i64th excluding the "1" at i64th
@@ -166,11 +165,6 @@ func Select32(words []uint64, selectIndex []int32, i int32) (int32, int32) {
 
 	// continue search for i-th 1
 	for {
-		if w == 0 {
-			wordI++
-			w = words[wordI]
-			continue
-		}
 
 		ones := bits.OnesCount64(w)
 		if ones <= findIth {
@@ -222,7 +216,7 @@ func Select32(words []uint64, selectIndex []int32, i int32) (int32, int32) {
 			return a, wordI<<6 + int32(bits.TrailingZeros64(w))
 		}
 	}
-	return a, bitL
+	return a, l << 6
 }
 
 // indexSelectU64 create a 8 uint8 array in a uint64.
