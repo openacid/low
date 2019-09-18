@@ -10,16 +10,33 @@ import (
 // It returns an index of []int32.
 // Every element in it is rank(i*64)
 //
+// Since 0.1.11
+// An optional bool specifies whether to add a last index entry of count of all
+// "1".
+//
 // Since 0.1.8
-func IndexRank64(words []uint64) []int32 {
+func IndexRank64(words []uint64, opts ...bool) []int32 {
 
-	idx := make([]int32, len(words)+1)
+	trailing := false
+	if len(opts) > 0 {
+		trailing = opts[0]
+	}
+
+	l := len(words)
+	if trailing {
+		l++
+	}
+
+	idx := make([]int32, l)
 	n := int32(0)
 	for i := 0; i < len(words); i++ {
 		idx[i] = n
 		n += int32(bits.OnesCount64(words[i]))
 	}
-	idx[len(words)] = n
+
+	if trailing {
+		idx[len(words)] = n
+	}
 
 	return idx
 }

@@ -59,7 +59,14 @@ func TestIndexRank(t *testing.T) {
 
 	for i, c := range cases {
 
+		noLast := c.want64[:len(c.want64)-1]
 		idx64 := IndexRank64(c.bm)
+		ta.Equal(noLast, idx64, "%d-th: case: %+v", i+1, c)
+
+		idx64 = IndexRank64(c.bm, false)
+		ta.Equal(noLast, idx64, "%d-th: case: %+v", i+1, c)
+
+		idx64 = IndexRank64(c.bm, true)
 		ta.Equal(c.want64, idx64, "%d-th: case: %+v", i+1, c)
 
 		idx128 := IndexRank128(c.bm)
