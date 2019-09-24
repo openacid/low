@@ -20,6 +20,24 @@ func Of(data interface{}) int {
 	return sizeof(reflect.ValueOf(data))
 }
 
+// Opt defines options for size.Stat()
+//
+// Since 0.1.11
+type Opt struct {
+
+	// AvgOf being a non-zero value indicates to display average.
+	//
+	// Since 0.1.11
+	AvgOf int
+
+	// AvgUnit specifies the unit of size to use.
+	// By default it is byte.
+	// Set AvgUnit to 1.0/8 to display size in bit.
+	//
+	// Since 0.1.11
+	AvgUnit float64
+}
+
 // Stat returns a multi line string describe size of every component of a
 // vavlue, such as slice element, struct member:
 //
@@ -34,8 +52,12 @@ func Of(data interface{}) int {
 //			   2: int32: 4
 //
 // Since 0.1.0
-func Stat(v interface{}, depth int, maxItem int) string {
-	lines := stat(reflect.ValueOf(v), depth, maxItem)
+func Stat(v interface{}, depth int, maxItem int, opts ...interface{}) string {
+	opt := Opt{}
+	if len(opts) > 0 {
+		opt = opts[0].(Opt)
+	}
+	lines := stat(reflect.ValueOf(v), depth, maxItem, opt)
 	return strings.Join(lines, "\n")
 }
 
@@ -47,11 +69,24 @@ var (
 	interfacesize = int(unsafe.Sizeof(interface{}(nil))) // 16
 )
 
-func stat(v reflect.Value, depth int, maxItem int) []string {
+func stat(v reflect.Value, depth int, maxItem int, opt Opt) []string {
 	if !v.IsValid() {
 		return []string{"<nil>"}
 	}
-	header := fmt.Sprintf("%s: %d", v.Type(), sizeof(v))
+
+	var header string
+	if opt.AvgOf > 0 {
+		s := sizeof(v)
+		avg := float64(s) / float64(opt.AvgOf)
+		unit := opt.AvgUnit
+		if unit == 0 {
+			unit = 1
+		}
+		avg /= unit
+		header = fmt.Sprintf("%s: %d /n = %.3f", v.Type(), s, avg)
+	} else {
+		header = fmt.Sprintf("%s: %d", v.Type(), sizeof(v))
+	}
 	if depth == 0 {
 		return []string{header}
 	}
@@ -65,14 +100,14 @@ func stat(v reflect.Value, depth int, maxItem int) []string {
 		keys := v.MapKeys()
 		for i := 0; i < len(keys) && i < maxItem; i++ {
 			mapkey := keys[i]
-			subs := stat(v.MapIndex(mapkey), depth, maxItem)
+			subs := stat(v.MapIndex(mapkey), depth, maxItem, opt)
 			subs[0] = fmt.Sprintf("%s: ", mapkey) + subs[0]
 
 			lines = append(lines, subs...)
 		}
 	case reflect.Slice, reflect.Array:
 		for i, n := 0, v.Len(); i < n && i < maxItem; i++ {
-			subs := stat(v.Index(i), depth, maxItem)
+			subs := stat(v.Index(i), depth, maxItem, opt)
 			subs[0] = fmt.Sprintf("%d: ", i) + subs[0]
 			lines = append(lines, subs...)
 		}
@@ -80,13 +115,13 @@ func stat(v reflect.Value, depth int, maxItem int) []string {
 	case reflect.Ptr:
 		p := (*[]byte)(unsafe.Pointer(v.Pointer()))
 		if p != nil {
-			lines = append(lines, stat(v.Elem(), depth, maxItem)...)
+			lines = append(lines, stat(v.Elem(), depth, maxItem, opt)...)
 		}
 	case reflect.Interface:
-		lines = append(lines, stat(v.Elem(), depth, maxItem)...)
+		lines = append(lines, stat(v.Elem(), depth, maxItem, opt)...)
 	case reflect.Struct:
 		for i, n := 0, v.NumField(); i < n; i++ {
-			subs := stat(v.Field(i), depth, maxItem)
+			subs := stat(v.Field(i), depth, maxItem, opt)
 			subs[0] = fmt.Sprintf("%s: ", v.Type().Field(i).Name) + subs[0]
 			lines = append(lines, subs...)
 		}
