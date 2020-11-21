@@ -1,10 +1,18 @@
 language: go
+
 go:
-    - 1.11.x
-    - 1.12.x
-    - tip
+    - 1.14.x
+    - 1.15.x
+    # - tip
+
 script:
     - make travis
-env:
-    global:
-        - secure: viNyH2p416THRmkiQSpRpB7NrSb5Aoy7TIfE7LiWyDJjAYIsi8eBHhTGVak4sg5VcQFRC/ReYHFwnFD/ZnsSBh4iRTLaX3BdmvgTHOYC7mqv87nRYqncJMtnBV7l6gyi2b2WcMwlkXGKR57UVs+rVlrZ2frKYoht7IhVGCXcn075FXkmq0CP+m8Z2nqcIC2TDzJxu7TLYpryuYb6NB5delQ7NcITE8yT0y9hZa6uCz5U3k1+Y0i//3fkBdahTd9023QANiROCtR1ZkMjrFzugsDG2jiByHm6Ho54NMuBSpGfYfr0LlrZ3fytAFCZ03olPPeQyfaD5CPc4cdGqVRP0NvOW68sSkKoobUULehC7p893fA1hSnPu2gH8Hf67kiTPDZ/SdYVlPFzBYtYvAhjyMOJ0srycO3l/4Ixlwe0fuUtBKnmWSsiGLOEGKEwHb62ViTIy6DPvcduNqK5/B5V0vCFkXfA3+NyDrydntW9/+nDqfUE5R6kZ60EvbaltPBZc+vdUzFUliLDuk8oWaOMhlKaKvsSWI3Q9wNwgkceUdcrDx4v18y+LMRrMCvE/kQGBZJDrEB6QMLfbdav13m3L9yQt8epFfwb9jGXqtNm6igHQMiRJAavIRyv4QlvoQoiI2zDnwyDv5kzrMadr2zxN0U0Cp6JtYfs/PqQa9Aea2g=
+
+after_success:
+    - make coveralls
+
+# private repo requires a crypted token:
+# env:
+#     global:
+#         # coveralls token
+#         secure: fJOPOuwBaZ59iQA1VskxZ3h08Nt5CjGbz5PdrZVT/v5UCG7DOLuVTx3x0Tb+gR9AG9lB8Fqpsnm0jjbBAPvOnyn1KIJDuK9Xj2PvKT78vhJ/SyCnn0BAinmxu9hZqghvyWIzeM8RrA3IrvmnoSUTdE1jnTC7McJ7np6cTRGO9Xe6b4mOO1xQOHJFMyTBFvA84uSKZPbuUHCrh19YH7NKrA4MKunX49R+niEFlFEM4oNM/2FXMca+4+OdlGNJmPkG0kV5exP87ihfqI3Q++9v3Z8SR0KOblL6yRBspaRDHmfKxuGx/YEf71pu0yu7nyT7uVeIABTz5SLrqX2Fhb/cpKb7iqCBQ+ifvgpd86pkfhrPUOsIO9N6pieNxmb+aCNm5WBJ2AaT1zrrfthpfbXvEl66K209rUDL0PV1n/u1pAgY5q7DQD5YuOnyAJNPBNQYYzJnZ+X1GjSNrHKOQPjXmrgwkq7KPVlDoqiaJAh97YwUmjXaULKYOm9JBPwVaToEUeCxzK82ZZRwa4YiYl3MLpJb+SvDMl97hgc58lolfg01wHgLYAT901bbq+qsrQZY4pkW9nDGvBuJg0Mru1bu6hqk/tUA7G4amh2y/5lJxxELednfnyzQ6fBeXKb0FVOTN9xRuFBkpRL1Drmbz3y6J2flAcdpJ4KgAMUP/941J6o=

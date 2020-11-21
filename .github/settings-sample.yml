@@ -1,0 +1,10 @@
+# Usage copy this to settings.yml
+
+_extends: gh-config
+
+
+repository:
+  name: name
+  description: desc
+  homepage: https://openacid.github.io/
+  topics: go, golang
