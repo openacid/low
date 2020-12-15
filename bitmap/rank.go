@@ -80,6 +80,7 @@ func IndexRank128(words []uint64) []int32 {
 // with the help of a 128-bit index.
 //
 // It takes about 2~3 ns/op.
+// Rank128 is about 50% slower than Rank64
 //
 // Since 0.1.9
 func Rank128(words []uint64, rindex []int32, i int32) (int32, int32) {

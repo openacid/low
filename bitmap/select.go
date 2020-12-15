@@ -5,29 +5,23 @@ import (
 	"math/bits"
 )
 
-// selectLookup8 is a lookup table for "select" on 8-bit bitmap:
-//	select(aByte, ith)
-// An element contains 8 4-bit integers.
-var selectLookup8 [256]uint32
-var tbl2 [256 * 8]uint8
+// select8Lookup is a lookup table for "select" on 8-bit bitmap:
+// It stores the result of select(b, ith) in
+// select8Lookup[b*256+ith].
+var select8Lookup [256 * 8]uint8
 
 func initSelectLookup() {
 
-	// selectLookup8 = make([]uint32, 256)
-
 	for i := 0; i < 256; i++ {
-		v := uint32(0)
 		w := uint8(i)
 		for j := 0; j < 8; j++ {
 			// x-th 1 in w
 			// if x-th 1 is not found, it is 8
 			x := bits.TrailingZeros8(w)
-			v |= uint32(x) << uint(j*4)
 			w &= w - 1
 
-			tbl2[i*8+j] = uint8(x)
+			select8Lookup[i*8+j] = uint8(x)
 		}
-		selectLookup8[i] = v
 	}
 }
 
@@ -127,8 +121,7 @@ func select32single(words []uint64, selectIndex []int32, i int32) int32 {
 				w >>= 8
 			}
 
-			tbl := selectLookup8[w&0xff]
-			return base + int32((tbl>>uint(findIth<<2))&0xf)
+			return base + int32(select8Lookup[(w&0xff)<<3+uint64(findIth)])
 
 		} else {
 			findIth -= ones
@@ -196,9 +189,9 @@ func Select32(words []uint64, selectIndex []int32, i int32) (int32, int32) {
 		ones = bits.OnesCount8(uint8(ww))
 
 		if ones <= findIth {
-			a = int32(tbl2[(ww>>5)&(0x7f8)|uint64(findIth-ones)]) + base + 8
+			a = int32(select8Lookup[(ww>>5)&(0x7f8)|uint64(findIth-ones)]) + base + 8
 		} else {
-			a = int32(tbl2[(ww&0xff)<<3|uint64(findIth)]) + base
+			a = int32(select8Lookup[(ww&0xff)<<3|uint64(findIth)]) + base
 		}
 
 		a += (wordI << 6)
@@ -260,7 +253,7 @@ func selectU64Indexed(w uint64, index uint64, findIth uint64) (int32, int) {
 	// }
 
 	findIth = findIth - (index>>uint(ithU8-8))&0x7f
-	vv := tbl2[(w>>uint(ithU8)&0xff)<<3+findIth]
+	vv := select8Lookup[(w>>uint(ithU8)&0xff)<<3+findIth]
 
 	// f2 := diff >> uint(ithU8)
 	return int32(vv) + int32(ithU8), 0

@@ -23,6 +23,9 @@ func TestIndexSelect64(t *testing.T) {
 		{[]uint64{4, 0}, []int32{2}},
 		{[]uint64{0xffffffff, 0xffffffff}, []int32{0, 64}},
 		{[]uint64{0xffffffff, 0xffffffff, 1}, []int32{0, 64, 128}},
+
+		{[]uint64{0xffffffffffffffff, 0xffffffffffffffff, 1}, []int32{0, 32, 64, 96, 128}},
+		{[]uint64{0, 0xffffffffffffffff, 1}, []int32{64, 96, 128}},
 	}
 
 	for i, c := range cases {
