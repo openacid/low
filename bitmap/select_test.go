@@ -165,6 +165,44 @@ func TestSelect32(t *testing.T) {
 	}
 }
 
+func TestSelect32R64(t *testing.T) {
+
+	ta := require.New(t)
+
+	cases := []struct {
+		input []uint64
+	}{
+		{nil},
+		{[]uint64{}},
+		{[]uint64{0}},
+		{[]uint64{1}},
+		{[]uint64{2}},
+		{[]uint64{3}},
+		{[]uint64{4, 0}},
+		{[]uint64{0xf, 0xf}},
+		{[]uint64{0xf, 0, 0xf}},
+		{[]uint64{0xfffffffffffffff0}},
+		{[]uint64{0xffffffffffffffff}},
+		{[]uint64{0xffffffff, 0xffffffff}},
+		{[]uint64{0xffffffff, 0xffffffff, 1}},
+		{[]uint64{0x6668}}, // 000101100110011
+	}
+
+	for _, c := range cases {
+
+		sidx, ridx := IndexSelect32R64(c.input)
+
+		all := ToArray(c.input)
+
+		for j := 0; j < len(all)-1; j++ {
+			a, b := Select32R64(c.input, sidx, ridx, int32(j))
+			ta.Equal(all[j], a, "select2-1: %d, case: %+v", j, c)
+			ta.Equal(all[j+1], b, "select2-2: %d, case: %+v", j, c)
+		}
+
+	}
+}
+
 func TestSelect32_panic(t *testing.T) {
 
 	ta := require.New(t)

@@ -212,6 +212,95 @@ func Select32(words []uint64, selectIndex []int32, i int32) (int32, int32) {
 	return a, l << 6
 }
 
+// IndexSelect32R64 creates indexes for operation "select" on a bitmap.
+// select(i) returns the position of the i-th "1".
+// E.g.:
+//     bitmap = 100100..
+//     select(bitmap, 0) = 1
+//     select(bitmap, 1) = 3
+//
+// It returns a select index in []int32 and an index of Rank64.
+//
+// Since 0.1.13
+func IndexSelect32R64(words []uint64) ([]int32, []int32) {
+	l := len(words) << 6
+	sidx := make([]int32, 0, len(words))
+
+	ith := -1
+	for i := 0; i < l; i++ {
+		if words[i>>6]&(1<<uint(i&63)) != 0 {
+			ith++
+			if ith&31 == 0 {
+				sidx = append(sidx, int32(i))
+			}
+		}
+	}
+
+	// clone to reduce cap to len
+	sidx = append(sidx[:0:0], sidx...)
+	return sidx, IndexRank64(words, true)
+}
+
+// Select32R64 returns the indexes of the i-th "1" and the (i+1)-th "1".
+// It requires a Rank64 index for speeding up and a Select32 index
+//
+// Since 0.1.13
+func Select32R64(words []uint64, selectIndex, rankIndex []int32, i int32) (int32, int32) {
+
+	a := int32(0)
+	l := int32(len(words))
+
+	wordI := selectIndex[i>>5] >> 6
+	for ; rankIndex[wordI+1] <= i; wordI++ {
+	}
+
+	w := words[wordI]
+	ww := w
+	base := wordI << 6
+	findIth := int(i - rankIndex[wordI])
+
+	offset := int32(0)
+
+	ones := bits.OnesCount32(uint32(ww))
+	if ones <= findIth {
+		findIth -= ones
+		offset |= 32
+		ww >>= 32
+	}
+
+	ones = bits.OnesCount16(uint16(ww))
+	if ones <= findIth {
+		findIth -= ones
+		offset |= 16
+		ww >>= 16
+	}
+
+	ones = bits.OnesCount8(uint8(ww))
+	if ones <= findIth {
+		a = int32(select8Lookup[(ww>>5)&(0x7f8)|uint64(findIth-ones)]) + offset + 8
+	} else {
+		a = int32(select8Lookup[(ww&0xff)<<3|uint64(findIth)]) + offset
+	}
+
+	a += base
+
+	// "& 63" elides boundary check
+	w &= RMaskUpto[a&63]
+
+	if w != 0 {
+		return a, base + int32(bits.TrailingZeros64(w))
+	}
+
+	wordI++
+	for ; wordI < l; wordI++ {
+		w = words[wordI]
+		if w != 0 {
+			return a, wordI<<6 + int32(bits.TrailingZeros64(w))
+		}
+	}
+	return a, l << 6
+}
+
 // indexSelectU64 create a 8 uint8 array in a uint64.
 // Element a[i] is the count of "1" in the least (i+1)*8 bits.
 //
