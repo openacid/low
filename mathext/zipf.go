@@ -100,7 +100,7 @@ import (
 //    ∫y = 1
 //    a
 //
-// Thus c = q/(b**q - q**q)
+// Thus c = q/(b**q - a**q)
 // Finaly t can be found by:
 //
 //    t = (uq/C+a**q)**(1/q)
