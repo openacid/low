@@ -1,4 +1,4 @@
-package mathext
+package zipf
 
 import (
 	"fmt"

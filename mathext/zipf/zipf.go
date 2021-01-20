@@ -1,5 +1,5 @@
-// Package mathext provides several math functions.
-package mathext
+// Package zipf provides zipf impl.
+package zipf
 
 import (
 	"math"

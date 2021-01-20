@@ -1,10 +1,11 @@
-package mathext
+package zipf_test
 
 import (
 	"math/rand"
 	"strings"
 	"testing"
 
+	"github.com/openacid/low/mathext/zipf"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,7 +20,7 @@ func TestZipf(t *testing.T) {
 	s := float64(1.5)
 
 	got := make([]int, n)
-	z := New(a, b, s)
+	z := zipf.New(a, b, s)
 
 	want := []int{0, 3255, 1442, 859, 587, 433, 336, 271, 225, 190, 163, 143,
 		126, 112, 101, 91, 83, 76, 70, 64, 60, 56, 52, 49, 45, 44, 40, 39, 36, 35,
@@ -66,7 +67,7 @@ func TestAccess(t *testing.T) {
 ******
 *******`[1:]
 
-	got := Accesses(a, s, 20, 200, nil)
+	got := zipf.Accesses(a, s, 20, 200, nil)
 	_, g := makeSample(20, got)
 	ta.Equal(want, g)
 }
@@ -118,7 +119,7 @@ func BenchmarkZipf(b *testing.B) {
 	bb := float64(end)
 	s := float64(1.5)
 
-	z := New(a, bb, s)
+	z := zipf.New(a, bb, s)
 	ss := float64(0)
 	for i := 0; i < b.N; i++ {
 		v := z.Float64(float64(i) / float64(b.N))
