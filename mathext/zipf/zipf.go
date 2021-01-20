@@ -3,6 +3,7 @@ package mathext
 
 import (
 	"math"
+	"math/rand"
 )
 
 // Zipf generates zipf distributed variates.
@@ -111,14 +112,14 @@ type Zipf struct {
 	qInv, aPowQ, c, qDivC float64
 }
 
-// NewZipf creates a Zipf struct that generates values in range `[a, b]`, with
+// New creates a Zipf struct that generates values in range `[a, b]`, with
 // the power `s > 0`.
 //
 // Usually a is greater than 1, since C x**(-s) is infinite when x get close to
 // 0.
 //
 // Since 0.1.15
-func NewZipf(a, b, s float64) *Zipf {
+func New(a, b, s float64) *Zipf {
 	z := &Zipf{}
 
 	q := (1 - s)
@@ -147,4 +148,38 @@ func (z *Zipf) Float64(u float64) float64 {
 	ln := math.Log(u*z.qDivC + z.aPowQ)
 	t := math.Exp(ln * z.qInv)
 	return t
+}
+
+// Accesses generates a sequence of `n` accesses to an array index in zipf distribution
+// The zipf is defined as y = (a+k)**(-s), where k ∈ `[0, arrayLen]`.
+//
+// Since 0.1.16
+func Accesses(a, s float64, arrayLen int, n int, r *rand.Rand) []int {
+
+	if r == nil {
+		// By default it builds a repeatable random number generator.
+		r = rand.New(rand.NewSource(44))
+	}
+
+	sh := make([]int, arrayLen)
+	for i := 0; i < arrayLen; i++ {
+		sh[i] = i
+	}
+
+	// rand.Shuffle is fixed
+	rand.Shuffle(arrayLen, func(i, j int) {
+		sh[i], sh[j] = sh[j], sh[i]
+	})
+
+	rst := make([]int, 0, n)
+
+	z := New(a, a+float64(arrayLen), s)
+	for i := 0; i < n; i++ {
+		randv := r.Float64()
+		v := z.Float64(randv) - a
+		idx := int(v)
+		idx = sh[idx]
+		rst = append(rst, idx)
+	}
+	return rst
 }

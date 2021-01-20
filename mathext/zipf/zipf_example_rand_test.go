@@ -15,7 +15,7 @@ func ExampleZipf() {
 	b := float64(20)
 	s := float64(1.5)
 
-	z := NewZipf(a, b, s)
+	z := New(a, b, s)
 	sampleCnt := float64(100)
 
 	sample := make([]int, n)

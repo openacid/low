@@ -2,6 +2,7 @@ package mathext
 
 import (
 	"math/rand"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,7 +19,7 @@ func TestZipf(t *testing.T) {
 	s := float64(1.5)
 
 	got := make([]int, n)
-	z := NewZipf(a, b, s)
+	z := New(a, b, s)
 
 	want := []int{0, 3255, 1442, 859, 587, 433, 336, 271, 225, 190, 163, 143,
 		126, 112, 101, 91, 83, 76, 70, 64, 60, 56, 52, 49, 45, 44, 40, 39, 36, 35,
@@ -34,6 +35,54 @@ func TestZipf(t *testing.T) {
 	}
 
 	ta.Equal(want, got)
+}
+
+func TestAccess(t *testing.T) {
+
+	ta := require.New(t)
+
+	a := float64(1)
+	s := float64(1.5)
+
+	want := `
+**
+**
+**
+***
+************************************************************************
+*****
+
+**
+************
+*****************
+*
+**
+*
+********************
+******************************
+********
+******
+**
+******
+*******`[1:]
+
+	got := Accesses(a, s, 20, 200, nil)
+	_, g := makeSample(20, got)
+	ta.Equal(want, g)
+}
+
+func makeSample(n int, accesses []int) ([]int, string) {
+	arr := make([]int, n)
+	for _, idx := range accesses {
+		arr[idx]++
+	}
+
+	lines := make([]string, n)
+	for i, v := range arr {
+		lines[i] = strings.Repeat("*", v)
+	}
+
+	return arr, strings.Join(lines, "\n")
 }
 
 func TestOfficalZipf(t *testing.T) {
@@ -69,7 +118,7 @@ func BenchmarkZipf(b *testing.B) {
 	bb := float64(end)
 	s := float64(1.5)
 
-	z := NewZipf(a, bb, s)
+	z := New(a, bb, s)
 	ss := float64(0)
 	for i := 0; i < b.N; i++ {
 		v := z.Float64(float64(i) / float64(b.N))
