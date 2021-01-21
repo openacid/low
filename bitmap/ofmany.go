@@ -5,11 +5,19 @@ package bitmap
 //
 // Since 0.1.9
 func OfMany(subs [][]int32, sizes []int32) []uint64 {
-	r := make([]int32, 0)
+
+	totalBits := 0
+	for _, sb := range subs {
+		totalBits += len(sb)
+	}
+
+	r := make([]int32, totalBits)
 	base := int32(0)
+	ith := 0
 	for i, e := range subs {
 		for _, idx := range e {
-			r = append(r, base+idx)
+			r[ith] = base + idx
+			ith++
 		}
 		base += sizes[i]
 	}
