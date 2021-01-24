@@ -43,3 +43,21 @@ func (b *Builder) Extend(bitPositions []int32, size int32) {
 
 	b.Offset += size
 }
+
+// Set a bit to `value` in the bitmap builder.
+// Builder.Offset is updated to the last set bit if it is smaller.
+//
+// Since 0.1.19
+func (b *Builder) Set(bitPosition int32, value int32) {
+
+	for int(bitPosition>>6) >= len(b.Words) {
+		b.Words = append(b.Words, 0)
+	}
+
+	b.Words[bitPosition>>6] |= uint64(value&1) << uint(bitPosition&63)
+
+	// update to next unused bit
+	if b.Offset <= bitPosition {
+		b.Offset = bitPosition + 1
+	}
+}

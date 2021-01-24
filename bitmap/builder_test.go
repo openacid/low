@@ -130,3 +130,67 @@ func TestBuilder_Extend(t *testing.T) {
 		}
 	}
 }
+
+func TestBuilder_Set(t *testing.T) {
+
+	ta := require.New(t)
+
+	cases := []struct {
+		input      []int32
+		value      []int32
+		wantWords  []uint64
+		wantOffset int32
+	}{
+		{
+			[]int32{0},
+			[]int32{1},
+			[]uint64{1},
+			1,
+		},
+		{
+			[]int32{0, 5},
+			[]int32{1, 0},
+			[]uint64{1},
+			6,
+		},
+		{
+			[]int32{0, 5, 63},
+			[]int32{1, 0, 1},
+			[]uint64{1 + 1<<63},
+			64,
+		},
+		{
+			[]int32{0, 5, 63, 5},
+			[]int32{1, 0, 1, 1},
+			[]uint64{1 + 1<<5 + 1<<63},
+			64,
+		},
+		{
+			[]int32{0, 5, 63, 5, 64},
+			[]int32{1, 0, 1, 1, 0},
+			[]uint64{1 + 1<<5 + 1<<63, 0},
+			65,
+		},
+		{
+			[]int32{0, 5, 63, 5, 64},
+			[]int32{1, 0, 1, 1, 1},
+			[]uint64{1 + 1<<5 + 1<<63, 1},
+			65,
+		},
+	}
+
+	for i, c := range cases {
+
+		b := NewBuilder(0)
+		for i, pos := range c.input {
+			b.Set(pos, c.value[i])
+		}
+
+		ta.Equal(c.wantWords, b.Words,
+			"%d-th: words, case: %+v",
+			i+1, c)
+		ta.Equal(c.wantOffset, b.Offset,
+			"%d-th: offset, case: %+v",
+			i+1, c)
+	}
+}
