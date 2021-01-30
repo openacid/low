@@ -2,13 +2,14 @@ package sigbits
 
 import (
 	"math/bits"
+	"unsafe"
 )
 
 // sFirstDiffBit returns the first different bit position.
 // If a or b is a prefix of the other, it returns the smaller length times 8.
 //
 // Since 0.1.9
-func sFirstDiffBit(a, b string) int32 {
+func sFirstDiffBit(a, b []byte) int32 {
 
 	la := len(a)
 	lb := len(b)
@@ -50,19 +51,36 @@ func FirstDiffBits(keys []string) []int32 {
 
 	ds := make([]int32, l-1)
 	for i := 0; i < l-1; i++ {
+		k1 := *(*[]byte)(unsafe.Pointer(&keys[i]))
+		k2 := *(*[]byte)(unsafe.Pointer(&keys[i+1]))
+		ds[i] = sFirstDiffBit(k1, k2)
+	}
+
+	return ds
+}
+
+// FirstDiffBitsOfBytes is similar to FirstDiffBits, except that the input is
+// slice of []bytes instead of string.
+//
+// Since 0.1.22
+func FirstDiffBitsOfBytes(keys [][]byte) []int32 {
+	l := len(keys)
+
+	ds := make([]int32, l-1)
+	for i := 0; i < l-1; i++ {
 		ds[i] = sFirstDiffBit(keys[i], keys[i+1])
 	}
 
 	return ds
 }
 
-// get64Bits converts a string of length upto 8 to a uint64,
+// get64Bits converts a []byte of length upto 8 to a uint64,
 // in big endian.
 // Less than 8 byte string will be filled with trailing 0.
 // More than 8 bytes will be ignored.
 //
 // Since 0.1.9
-func get64Bits(s string) uint64 {
+func get64Bits(s []byte) uint64 {
 
 	if len(s) >= 8 {
 

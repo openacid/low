@@ -22,7 +22,7 @@ func TestGet64Bits(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		got := get64Bits(c.input)
+		got := get64Bits([]byte(c.input))
 		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
 	}
 }
@@ -36,7 +36,7 @@ func BenchmarkGet64Bits_9(b *testing.B) {
 	Get64BitsInput = "abcd1234x"
 	var s uint64 = 0
 	for i := 0; i < b.N; i++ {
-		s += get64Bits(Get64BitsInput)
+		s += get64Bits([]byte(Get64BitsInput))
 	}
 	Get64BitsOutput = int(s)
 }
@@ -45,7 +45,7 @@ func BenchmarkGet64Bits_7(b *testing.B) {
 	Get64BitsInput = "abcd123"
 	var s uint64 = 0
 	for i := 0; i < b.N; i++ {
-		s += get64Bits(Get64BitsInput)
+		s += get64Bits([]byte(Get64BitsInput))
 	}
 	Get64BitsOutput = int(s)
 }
@@ -77,7 +77,7 @@ func TestFirstDiffBit(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		got := sFirstDiffBit(c.a, c.b)
+		got := sFirstDiffBit([]byte(c.a), []byte(c.b))
 		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
 	}
 }
@@ -132,7 +132,18 @@ func TestFirstDiffBits(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		got := FirstDiffBits(c.keys)
-		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
+		{
+			got := FirstDiffBits(c.keys)
+			ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
+		}
+		{
+			bs := make([][]byte, 0, len(c.keys))
+			for _, k := range c.keys {
+				bs = append(bs, []byte(k))
+			}
+			got := FirstDiffBitsOfBytes(bs)
+			ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
+
+		}
 	}
 }
