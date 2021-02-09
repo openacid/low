@@ -254,6 +254,7 @@ func TestBit(t *testing.T) {
 
 	for i, c := range cases {
 		got := fmt.Sprintf("%064b", Bit[i])
-		ta.Equal(c.want, got, "%d-th: case: %+v", i+1, c)
+		ta.Equal(c.want, got, "%d-th: Bit case: %+v", i+1, c)
+		ta.Equal(^Bit[i], RBit[i], "%d-th: RBit case: %+v", i+1, c)
 	}
 }

@@ -27,6 +27,11 @@ var (
 	//
 	// Since 0.1.9
 	Bit [64]uint64
+
+	// RBit are reverse of Bit.
+	//
+	// Since 0.1.9
+	RBit [64]uint64
 )
 
 func initMasks() {
@@ -39,5 +44,6 @@ func initMasks() {
 		MaskUpto[i] = (1 << uint(i+1)) - 1
 		RMaskUpto[i] = ^MaskUpto[i]
 		Bit[i] = 1 << uint(i)
+		RBit[i] = ^Bit[i]
 	}
 }
