@@ -69,6 +69,10 @@ func TestOf_with_n(t *testing.T) {
 			[]uint64{},
 		},
 		{
+			[]int32{}, -100,
+			[]uint64{},
+		},
+		{
 			[]int32{}, 1,
 			[]uint64{0},
 		},
@@ -91,6 +95,10 @@ func TestOf_with_n(t *testing.T) {
 		},
 		{
 			[]int32{0}, -1,
+			[]uint64{1},
+		},
+		{
+			[]int32{0}, -100,
 			[]uint64{1},
 		},
 		{
@@ -121,6 +129,10 @@ func TestOf_with_n(t *testing.T) {
 		},
 		{
 			[]int32{0, 1, 2}, -1,
+			[]uint64{7},
+		},
+		{
+			[]int32{0, 1, 2}, -100,
 			[]uint64{7},
 		},
 		{
@@ -155,6 +167,10 @@ func TestOf_with_n(t *testing.T) {
 		},
 		{
 			[]int32{64}, -1,
+			[]uint64{0, 1},
+		},
+		{
+			[]int32{64}, -100,
 			[]uint64{0, 1},
 		},
 		{

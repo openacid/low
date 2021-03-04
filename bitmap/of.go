@@ -21,6 +21,9 @@ func Of(bitPositions []int32, opts ...int32) []uint64 {
 			n = max
 		}
 	}
+	if n < 0 {
+		n = 0
+	}
 
 	nWords := (n + 63) >> 6
 	words := make([]uint64, nWords)
