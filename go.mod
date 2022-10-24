@@ -9,5 +9,5 @@ require (
 	github.com/openacid/must v0.1.3
 	github.com/openacid/testkeys v0.1.7
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 )
